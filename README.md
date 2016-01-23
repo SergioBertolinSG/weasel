@@ -13,9 +13,16 @@ TODO: Tellin three sentences what weasel is, motivation, what problem it solves 
 
 - start CouchDB with `couchdb` (or run as service, see install output)
 - start Weazle in dev mode: `php -S 127.0.0.1:8080 -t public public/index.php`
+- call http://127.0.0.1:8080/bla/fasel/abc in browser
 - TODO what next? curl??
 
 ## TODOs
 
 - [ ] what to do
 - [ ] next ..
+
+## Tech
+
+- Micro-Framework: [**Slim**](http://www.slimframework.com)
+- Logger: [Monolog](https://github.com/Seldaek/monolog) (Sends your logs to files, sockets, inboxes, databases and various web services)
+- Persistance: [CouchDB](https://couchdb.apache.org) with [Doctrine](http://www.doctrine-project.org)
