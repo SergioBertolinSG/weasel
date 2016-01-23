@@ -78,6 +78,15 @@ class Metrics
 
         $data = $request->getParsedBody();
 
+        if(empty($data)) {
+            $error = [
+                'message' => 'The request must contain a JSON object.'
+            ];
+            $response->getBody()->write(json_encode($error));
+            return $response->withStatus(422)
+                ->withHeader('Content-Type', 'application/json');
+        }
+
         $keys = array_keys($data);
         sort($keys);
         if($keys !== ['environment', 'metrics']) {
@@ -86,10 +95,7 @@ class Metrics
             ];
             $response->getBody()->write(json_encode($error));
             return $response->withStatus(422)
-                ->withHeader(
-                'Content-Type',
-                $response->getBody()->isWritable() ? '1' : '0'
-            );
+                ->withHeader('Content-Type', 'application/json');
         }
 
         $data['type'] = 'metric';
@@ -99,10 +105,11 @@ class Metrics
         $uuids = $couch->getUuids(1);
         $couch->putDocument($data, $uuids[0]);
 
+        // don't send internal attributes
+        unset($data['hash'], $data['type']);
+
         $response->getBody()->write(json_encode($data));
-        return $response->withHeader(
-            'Content-Type',
-            'application/json'
-        );
+        return $response->withStatus(201)
+            ->withHeader('Content-Type', 'application/json');
     }
 }
