@@ -18,6 +18,7 @@
     "require": {
         "doctrine/couchdb": "@dev",
         "slim/slim": "^3.1",
-        "monolog/monolog": "^1.13"
+        "monolog/monolog": "^1.13",
+        "raven/raven": "^0.13.0"
     }
 }
