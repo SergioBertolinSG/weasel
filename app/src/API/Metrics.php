@@ -23,24 +23,14 @@ class Metrics
 
     private function setupDB(CouchDBClient $couch)
     {
+        // TODO move this to DB creation code
         $name = urldecode($couch->getDatabase());
-        $this->logger->info(print_r($couch->getAllDatabases(), true));
-        $this->logger->info($name);
         if(!in_array($name, $couch->getAllDatabases()))
         {
             $this->logger->info("Set up new database " . $name);
             $couch->createDatabase($name);
             $couch->createDesignDocument('metrics', new MetricDesignDocument());
-
-            $uuids = $couch->getUuids(4);
-            $couch->putDocument(['hash'=> 'abc', 'content' => 'a', 'type' => 'metric'], $uuids[0]);
-            $couch->putDocument(['hash'=> 'def', 'content' => 'b', 'type' => 'metric'], $uuids[1]);
-            $couch->putDocument(['hash'=> 'abc', 'content' => 'c', 'type' => 'metric'], $uuids[2]);
-            $couch->putDocument(['hash'=> 'abc', 'content' => 'd', 'type' => 'metric'], $uuids[3]);
-
-
         }
-        $this->logger->info(print_r($couch->getAllDatabases(), true));
     }
 
     /**
