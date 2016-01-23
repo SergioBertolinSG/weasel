@@ -1,0 +1,12 @@
+default:
+    extensions:
+        Rezzza\RestApiBehatExtension\Extension:
+            rest:
+                base_url: http://localhost:8080
+                store_response: true
+                adaptor_name: curl # Should be one of these adapters : https://github.com/egeloen/ivory-http-adapter/blob/master/doc/adapters.md#factory
+    suites:
+        default:
+            contexts:
+                - Rezzza\RestApiBehatExtension\RestApiContext
+                - Rezzza\RestApiBehatExtension\Json\JsonContext
