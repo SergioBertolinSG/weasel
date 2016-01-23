@@ -112,4 +112,30 @@ class Metrics
         return $response->withStatus(201)
             ->withHeader('Content-Type', 'application/json');
     }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param $args
+     * @return \Psr\Http\Message\MessageInterface
+     */
+    public function delete(Request $request, Response $response, $args)
+    {
+        $name = $args['user'] . '/' . $args['repo'];
+        /** @var CouchDBClient $couch */
+        $couch = call_user_func($this->couchFactory, $name);
+        $this->setupDB($couch);
+
+
+        $query = $couch->createViewQuery('metrics', 'by_hash');
+        $query->setReduce(false);
+        $query->setKey($args['hash']);
+        $result = $query->execute();
+
+        foreach ($result as $row) {
+            $couch->deleteDocument($row['value']['_id'], $row['value']['_rev']);
+        }
+
+        return $response->withStatus(204);
+    }
 }

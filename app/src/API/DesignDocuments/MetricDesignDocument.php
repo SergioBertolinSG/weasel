@@ -12,7 +12,7 @@ class MetricDesignDocument implements \Doctrine\CouchDB\View\DesignDocument
                 'by_hash' => array(
                     'map' => 'function(doc) {
                         if(\'metric\' == doc.type) {
-                            emit(doc.hash, doc._id);
+                            emit(doc.hash, doc);
                         }
                     }',
                     'reduce' => '_count'
