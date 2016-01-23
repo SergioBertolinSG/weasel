@@ -1,0 +1,23 @@
+{
+    "name": "weasel",
+    "description": "",
+    "license": "...",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Morris Jobke",
+            "email": "hey@morrisjobke.de",
+            "homepage": "http://morrisjobke.de"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/src"
+        }
+    },
+    "require": {
+        "doctrine/couchdb": "@dev",
+        "slim/slim": "^3.1",
+        "monolog/monolog": "^1.13"
+    }
+}
