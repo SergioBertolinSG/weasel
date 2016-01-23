@@ -23,24 +23,14 @@ class Metrics
 
     private function setupDB(CouchDBClient $couch)
     {
+        // TODO move this to DB creation code
         $name = urldecode($couch->getDatabase());
-        $this->logger->info(print_r($couch->getAllDatabases(), true));
-        $this->logger->info($name);
         if(!in_array($name, $couch->getAllDatabases()))
         {
             $this->logger->info("Set up new database " . $name);
             $couch->createDatabase($name);
             $couch->createDesignDocument('metrics', new MetricDesignDocument());
-
-            $uuids = $couch->getUuids(4);
-            $couch->putDocument(['hash'=> 'abc', 'content' => 'a', 'type' => 'metric'], $uuids[0]);
-            $couch->putDocument(['hash'=> 'def', 'content' => 'b', 'type' => 'metric'], $uuids[1]);
-            $couch->putDocument(['hash'=> 'abc', 'content' => 'c', 'type' => 'metric'], $uuids[2]);
-            $couch->putDocument(['hash'=> 'abc', 'content' => 'd', 'type' => 'metric'], $uuids[3]);
-
-
         }
-        $this->logger->info(print_r($couch->getAllDatabases(), true));
     }
 
     /**
@@ -71,5 +61,55 @@ class Metrics
             'Content-Type',
             'application/json'
         );
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param $args
+     * @return \Psr\Http\Message\MessageInterface
+     */
+    public function post(Request $request, Response $response, $args)
+    {
+        $name = $args['user'] . '/' . $args['repo'];
+        /** @var CouchDBClient $couch */
+        $couch = call_user_func($this->couchFactory, $name);
+        $this->setupDB($couch);
+
+        $data = $request->getParsedBody();
+
+        if(empty($data)) {
+            $error = [
+                'message' => 'The request must contain a JSON object.'
+            ];
+            $response->getBody()->write(json_encode($error));
+            return $response->withStatus(422)
+                ->withHeader('Content-Type', 'application/json');
+        }
+
+        $keys = array_keys($data);
+        sort($keys);
+        if($keys !== ['environment', 'metrics']) {
+            $error = [
+                'message' => 'The elements "environment" and "metrics" must be set and must be the only elements.'
+            ];
+            $response->getBody()->write(json_encode($error));
+            return $response->withStatus(422)
+                ->withHeader('Content-Type', 'application/json');
+        }
+
+        $data['type'] = 'metric';
+        $data['created_at'] = (new \DateTime())->format(\DateTime::ISO8601);
+        $data['hash'] = $args['hash'];
+
+        $uuids = $couch->getUuids(1);
+        $couch->putDocument($data, $uuids[0]);
+
+        // don't send internal attributes
+        unset($data['hash'], $data['type']);
+
+        $response->getBody()->write(json_encode($data));
+        return $response->withStatus(201)
+            ->withHeader('Content-Type', 'application/json');
     }
 }
