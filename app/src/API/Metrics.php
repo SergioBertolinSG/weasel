@@ -72,4 +72,47 @@ class Metrics
             'application/json'
         );
     }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param $args
+     * @return \Psr\Http\Message\MessageInterface
+     */
+    public function post(Request $request, Response $response, $args)
+    {
+        $name = $args['user'] . '/' . $args['repo'];
+        /** @var CouchDBClient $couch */
+        $couch = call_user_func($this->couchFactory, $name);
+        $this->setupDB($couch);
+
+        $data = $request->getParsedBody();
+
+        $keys = array_keys($data);
+        sort($keys);
+        if($keys !== ['environment', 'metrics']) {
+            $error = [
+                'message' => 'The elements "environment" and "metrics" must be set and must be the only elements.'
+            ];
+            $response->getBody()->write(json_encode($error));
+            return $response->withStatus(422)
+                ->withHeader(
+                'Content-Type',
+                $response->getBody()->isWritable() ? '1' : '0'
+            );
+        }
+
+        $data['type'] = 'metric';
+        $data['created_at'] = (new \DateTime())->format(\DateTime::ISO8601);
+        $data['hash'] = $args['hash'];
+
+        $uuids = $couch->getUuids(1);
+        $couch->putDocument($data, $uuids[0]);
+
+        $response->getBody()->write(json_encode($data));
+        return $response->withHeader(
+            'Content-Type',
+            'application/json'
+        );
+    }
 }
