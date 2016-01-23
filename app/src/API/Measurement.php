@@ -1,14 +1,14 @@
 <?php
 namespace App\API;
 
-use App\API\DesignDocuments\MetricDesignDocument;
+use App\API\DesignDocuments\MeasurementDesignDocument;
 use Doctrine\CouchDB\CouchDBClient;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Log\LoggerInterface;
 use Slim\Container;
 
-class Metrics
+class Measurement
 {
     /** @var LoggerInterface */
     private $logger;
@@ -29,7 +29,7 @@ class Metrics
         {
             $this->logger->info("Set up new database " . $name);
             $couch->createDatabase($name);
-            $couch->createDesignDocument('metrics', new MetricDesignDocument());
+            $couch->createDesignDocument('measurement', new MeasurementDesignDocument());
         }
     }
 
@@ -46,7 +46,7 @@ class Metrics
         $couch = call_user_func($this->couchFactory, $name);
         $this->setupDB($couch);
 
-        $query = $couch->createViewQuery('metrics', 'by_hash');
+        $query = $couch->createViewQuery('measurement', 'by_hash');
         $query->setReduce(false);
         $query->setKey($args['hash']);
         $result = $query->execute();
@@ -57,10 +57,8 @@ class Metrics
         }
 
         $response->getBody()->write(json_encode($data));
-        return $response->withHeader(
-            'Content-Type',
-            'application/json'
-        );
+        return $response
+            ->withHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -89,16 +87,16 @@ class Metrics
 
         $keys = array_keys($data);
         sort($keys);
-        if($keys !== ['environment', 'metrics']) {
+        if($keys !== ['environment', 'measurement']) {
             $error = [
-                'message' => 'The elements "environment" and "metrics" must be set and must be the only elements.'
+                'message' => 'The elements "environment" and "measurement" must be set and must be the only elements.'
             ];
             $response->getBody()->write(json_encode($error));
             return $response->withStatus(422)
                 ->withHeader('Content-Type', 'application/json');
         }
 
-        $data['type'] = 'metric';
+        $data['type'] = 'measurement';
         $data['created_at'] = (new \DateTime())->format(\DateTime::ISO8601);
         $data['hash'] = $args['hash'];
 
@@ -127,7 +125,7 @@ class Metrics
         $this->setupDB($couch);
 
 
-        $query = $couch->createViewQuery('metrics', 'by_hash');
+        $query = $couch->createViewQuery('measurement', 'by_hash');
         $query->setReduce(false);
         $query->setKey($args['hash']);
         $result = $query->execute();

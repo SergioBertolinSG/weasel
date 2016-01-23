@@ -2,7 +2,7 @@
 
 namespace App\API\DesignDocuments;
 
-class MetricDesignDocument implements \Doctrine\CouchDB\View\DesignDocument
+class MeasurementDesignDocument implements \Doctrine\CouchDB\View\DesignDocument
 {
     public function getData()
     {
@@ -11,7 +11,7 @@ class MetricDesignDocument implements \Doctrine\CouchDB\View\DesignDocument
             'views' => array(
                 'by_hash' => array(
                     'map' => 'function(doc) {
-                        if(\'metric\' == doc.type) {
+                        if(\'measurement\' == doc.type) {
                             emit(doc.hash, doc);
                         }
                     }',

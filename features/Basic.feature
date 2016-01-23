@@ -14,7 +14,7 @@ Feature: Basic
     And I send a POST request to "example/repo/aaaaaa" with body:
     """
     {
-      "metrics": {},
+      "measurement": {},
       "environment": {}
     }
     """
@@ -34,7 +34,7 @@ Feature: Basic
     When I send a POST request to "example/repo/aaaaaa" with body:
     """
     {
-      "metrics": {
+      "measurement": {
         "queries": {
           "filecache": {
             "SELECT": 1234,
@@ -60,6 +60,6 @@ Feature: Basic
     Then the response status code should be 201
     And the response should be in JSON
     And the JSON node "created_at" should exist
-    And the JSON node "metrics" should exist
+    And the JSON node "measurement" should exist
     And the JSON node "environment" should exist
     And I send a DELETE request to "example/repo/aaaaaa"
