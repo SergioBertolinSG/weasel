@@ -52,7 +52,7 @@ class TokenAuthentication
         }
 
         /* If path was given in easy mode add rule for it. */
-        if (!isset($options['path'])) {
+        if (isset($options['path'])) {
             $this->rules->push(new RequestPathRule([
                 'path' => $options['path']
             ]));
@@ -75,7 +75,7 @@ class TokenAuthentication
             $callback = $this->callback;
             $callback($request, $response, $token);
         } catch (\Exception $e) {
-            $this->logger->warning('authentication failed: ' . $e->getMessage());
+            $this->logger->info('authentication failed: ' . $e->getMessage());
             return $response->withStatus(401);
         }
 
@@ -127,7 +127,7 @@ class TokenAuthentication
 
         /* if everything fails log and throw exception */
         $message = 'token not found';
-        $this->logger->warning($message);
+        $this->logger->info($message);
         throw new \Exception($message);
     }
 }
