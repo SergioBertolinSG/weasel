@@ -65,3 +65,9 @@ $container['couchFactory'] = function (ContainerInterface $c) {
     };
 };
 
+
+// token
+$container['token'] = function(ContainerInterface $c) {
+    return new \App\Middleware\Token();
+};
+

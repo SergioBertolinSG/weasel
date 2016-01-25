@@ -1,7 +1,8 @@
 <?php
 namespace App\API;
 
-use App\API\DesignDocuments\MeasurementDesignDocument;
+use App\DesignDocuments\MeasurementDesignDocument;
+use App\Middleware\Token;
 use Doctrine\CouchDB\CouchDBClient;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -14,11 +15,14 @@ class Measurement
     private $logger;
     /** @var callable */
     private $couchFactory;
+    /** @var array */
+    private $token;
 
     public function __construct(Container $c)
     {
         $this->logger = $c->get('logger');
         $this->couchFactory = $c->get('couchFactory');
+        $this->token = $c->get('token')->getToken();
     }
 
     private function setupDB(CouchDBClient $couch)
