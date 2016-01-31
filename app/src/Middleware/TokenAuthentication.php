@@ -127,7 +127,6 @@ class TokenAuthentication
 
         /* if everything fails log and throw exception */
         $message = 'token not found';
-        $this->logger->info($message);
         throw new \Exception($message);
     }
 }
