@@ -44,7 +44,6 @@ class TokenCheck implements AuthenticationInterface
      */
     public function __invoke(RequestInterface $request, ResponseInterface $response, $token)
     {
-        // TODO needs to be implemented
         if (!is_string($token) || $token === '') {
             throw new \Exception('token is empty');
         }
