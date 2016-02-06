@@ -1,18 +1,18 @@
 <?php
 
-namespace App\API\DesignDocuments;
+namespace App\DesignDocuments;
 
-class MeasurementDesignDocument implements \Doctrine\CouchDB\View\DesignDocument
+class TokenDesignDocument implements \Doctrine\CouchDB\View\DesignDocument
 {
     public function getData()
     {
         return array(
             'language' => 'javascript',
             'views' => array(
-                'by_hash' => array(
+                'by_token' => array(
                     'map' => 'function(doc) {
-                        if(\'measurement\' == doc.type) {
-                            emit(doc.hash, doc);
+                        if(\'token\' == doc.type) {
+                            emit(doc.token, doc);
                         }
                     }',
                     'reduce' => '_count'
