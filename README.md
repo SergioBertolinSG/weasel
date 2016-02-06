@@ -2,6 +2,9 @@
 
 TODO: Tellin three sentences what weasel is, motivation, what problem it solves ..
 
+Docu: http://docs.weasle.apiary.io/
+Sentry: https://app.getsentry.com/morris/weasel
+
 ## Install
 
 - clone this repo
@@ -17,6 +20,11 @@ TODO: Tellin three sentences what weasel is, motivation, what problem it solves 
 - call http://127.0.0.1:8080/bla/fasel/abc in browser
 - TODO what next? curl??
 
+## Test
+
+- run Behat tests with `vendor/bin/behat`
+
+
 ## TODOs
 
 - [ ] what to do
@@ -27,3 +35,4 @@ TODO: Tellin three sentences what weasel is, motivation, what problem it solves 
 - Micro-Framework: [**Slim**](http://www.slimframework.com)
 - Logger: [Monolog](https://github.com/Seldaek/monolog) (Sends your logs to files, sockets, inboxes, databases and various web services)
 - Persistance: [CouchDB](https://couchdb.apache.org) with [Doctrine](http://www.doctrine-project.org)
+- Event logging to [Sentry](https://getsentry.com/) with [Raven](https://github.com/getsentry/raven-php)
