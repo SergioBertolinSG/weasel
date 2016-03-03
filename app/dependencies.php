@@ -61,7 +61,22 @@ $container['errorHandler'] = function (ContainerInterface $c) {
 // couchdb
 $container['couchFactory'] = function (ContainerInterface $c) {
     return function($dbname) {
-        return \Doctrine\CouchDB\CouchDBClient::create(['dbname' => urlencode($dbname)]);
+        $config = [
+            'dbname' => urlencode($dbname)
+        ];
+
+        // use the couchdb environment variable but don't overwrite the DB name
+        // COUCHDB_URL=couchdb://lolipop:SOME_PASSWORD@dokku-couchdb-lolipop:5984/lolipop
+        $couchDbUrl = getenv('COUCHDB_URL');
+        if(!empty($couchDbUrl)){
+            // remove database name
+            $couchDbUrl = substr($couchDbUrl, 0, strrpos($couchDbUrl, '/') + 1);
+            if(!empty($couchDbUrl)) {
+                $config['url'] = $couchDbUrl;
+            }
+        }
+
+        return \Doctrine\CouchDB\CouchDBClient::create($config);
     };
 };
 
