@@ -70,7 +70,7 @@ $container['couchFactory'] = function (ContainerInterface $c) {
         $couchDbUrl = getenv('COUCHDB_URL');
         if(!empty($couchDbUrl)){
             // remove database name
-            $couchDbUrl = substr($couchDbUrl, 0, strrpos($couchDbUrl, '/') + 1);
+            $couchDbUrl = substr($couchDbUrl, 0, strrpos($couchDbUrl, '/'));
             if(!empty($couchDbUrl)) {
                 $config['url'] = $couchDbUrl;
             }
