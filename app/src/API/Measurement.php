@@ -43,6 +43,34 @@ class Measurement
      * @param $args
      * @return \Psr\Http\Message\MessageInterface
      */
+    public function getList(Request $request, Response $response, $args)
+    {
+        $name = $args['user'] . '/' . $args['repo'];
+        /** @var CouchDBClient $couch */
+        $couch = call_user_func($this->couchFactory, $name);
+        $this->setupDB($couch);
+
+        $query = $couch->createViewQuery('measurement', 'by_hash');
+        $query->setReduce(false);
+        $query->setKey($args['hash']);
+        $result = $query->execute();
+
+        $data = [];
+        foreach ($result as $row) {
+            $data[] = $row['key'];
+        }
+
+        $response->getBody()->write(json_encode($data));
+        return $response
+            ->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param $args
+     * @return \Psr\Http\Message\MessageInterface
+     */
     public function get(Request $request, Response $response, $args)
     {
         $name = $args['user'] . '/' . $args['repo'];
@@ -57,7 +85,7 @@ class Measurement
 
         $data = [];
         foreach ($result as $row) {
-            $data[] = $row;
+            $data[] = $row['value'];
         }
 
         $response->getBody()->write(json_encode($data));
