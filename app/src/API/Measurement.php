@@ -52,7 +52,6 @@ class Measurement
 
         $query = $couch->createViewQuery('measurement', 'by_hash');
         $query->setReduce(false);
-        $query->setKey($args['hash']);
         $result = $query->execute();
 
         $data = [];
