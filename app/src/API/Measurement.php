@@ -84,6 +84,10 @@ class Measurement
 
         $data = [];
         foreach ($result as $row) {
+            unset($row['value']['_id']);
+            unset($row['value']['_rev']);
+            unset($row['value']['type']);
+            unset($row['value']['hash']);
             $data[] = $row['value'];
         }
 

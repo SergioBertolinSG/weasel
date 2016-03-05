@@ -11,7 +11,7 @@ Sentry: https://app.getsentry.com/morris/weasel
 - install CouchDB with `brew install couchdb` (Mac) or `apt-get install couchdb` (Debian)
 - install Composer dependencies `composer install`
 - check CouchDB with `curl http://127.0.0.1:5984/` (should answer some JSON)
-- browse CouchDB with http://127.0.0.1:5984/_util/
+- browse CouchDB with http://127.0.0.1:5984/_utils/
 
 ## Start
 
