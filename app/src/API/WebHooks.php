@@ -62,6 +62,9 @@ class WebHooks
         $couch = call_user_func($this->couchFactory, 'webhooks');
         $this->setupDB($couch);
 
+        $uuids = $couch->getUuids(1);
+        $uri = $request->getUri();
+        $target = $request->getRequestTarget();
         $data = [
             'type' => 'queue',
             'created_at' => (new \DateTime())->format(\DateTime::ISO8601),
@@ -76,14 +79,15 @@ class WebHooks
             'request' => [
                 'headers' => $request->getHeaders(),
                 'body' => $body
-            ]
+            ],
+            'internal_url' => str_replace($target, '/github/status/' . $uuids[0], $uri),
         ];
 
         $apiKey = getenv('GITHUB_API_KEY');
         if(!empty($apiKey)){
             $statusData = [
                 'state' => 'pending',
-                'target_url' => 'https://google.com',
+                'target_url' => $data['internal_url'],
                 'description' => 'Performance run is queued',
                 'context' => 'weasel/performance'
             ];
@@ -102,13 +106,43 @@ class WebHooks
                 }
             } catch (ClientException $e) {
                 // TODO queue the status update to re-deliver
-                $this->logger->info($e->getMessage());
+                $this->logger->info('delivering status: ' . $e->getMessage());
             }
         }
 
-        $uuids = $couch->getUuids(1);
         $couch->putDocument($data, $uuids[0]);
 
         return $response->withStatus(201);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param $args
+     * @return \Psr\Http\Message\MessageInterface
+     */
+    public function getStatus(Request $request, Response $response, $args)
+    {
+        /** @var CouchDBClient $couch */
+        $couch = call_user_func($this->couchFactory, 'webhooks');
+        $this->setupDB($couch);
+        $entry = $couch->findDocument($args['hash']);
+
+        if ($entry->status === 200 && isset($entry->body) && $entry->body['type'] === 'queue') {
+            $data = [
+                'created_at' => $entry->body['created_at'],
+                'status' => $entry->body['status']
+            ];
+
+            $response->getBody()->write(json_encode($data));
+            return $response
+                ->withHeader('Content-Type', 'application/json');
+        }
+
+
+        $response->getBody()->write(json_encode(['text' => 'could not be found']));
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(404);
     }
 }

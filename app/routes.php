@@ -1,6 +1,7 @@
 <?php
 // Routes
 
+$app->get('/github/status/{hash}', 'App\API\WebHooks:getStatus');
 $app->get('/{user}/{repo}', 'App\API\Measurement:getList');
 $app->get('/{user}/{repo}/{hash}', 'App\API\Measurement:get');
 $app->post('/{user}/{repo}/{hash}', 'App\API\Measurement:post');

@@ -54,7 +54,7 @@ class TokenAuthentication
         /* If path was given in easy mode add rule for it. */
         $this->rules->push(new RequestPathRule([
             'path' => isset($options['path']) ? $options['path'] : '',
-            'passthrough' => ['/github/webhook'],
+            'passthrough' => ['/github'],
         ]));
     }
 
