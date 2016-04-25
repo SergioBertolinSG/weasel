@@ -94,7 +94,7 @@ class WebHooks
                     'body' => json_encode($statusData),
                 ]);
                 if($res->getStatusCode() === 201) {
-                    $statusBody = json_decode($res->getBody()->getContents());
+                    $statusBody = json_decode($res->getBody()->getContents(), true);
                     $data['status_url'] = $statusBody['url'];
                 } else {
                     // TODO queue the status update to re-deliver
