@@ -41,9 +41,6 @@ class WebHooks
      */
     public function github(Request $request, Response $response)
     {
-        /** @var CouchDBClient $couch */
-        $couch = call_user_func($this->couchFactory, 'webhooks');
-        $this->setupDB($couch);
 
         $body = $request->getParsedBody();
 
@@ -56,12 +53,51 @@ class WebHooks
                 ->withHeader('Content-Type', 'application/json');
         }
 
-        $request->getHeaders();
+        if($request->getHeader('X-GitHub-Event') !== ['pull_request']) {
+            return $response->withStatus(200);
+        }
+
+        /** @var CouchDBClient $couch */
+        $couch = call_user_func($this->couchFactory, 'webhooks');
+        $this->setupDB($couch);
 
         $data = [
-            'headers' => $request->getHeaders(),
-            'body' => $body
+            'type' => 'queue',
+            'created_at' => (new \DateTime())->format(\DateTime::ISO8601),
+            'status' => 'pending',
+            'repo' => $body['repository']['full_name'],
+            'pr_url' => $body['pull_request']['html_url'],
+            'api_url' => $body['pull_request']['url'],
+            'statuses_url' => $body['pull_request']['statuses_url'],
+            'action' => $body['action'],
+            'head_sha' => $body['pull_request']['head']['sha'],
+            'base_sha' => $body['pull_request']['base']['sha'],
+            'request' => [
+                'headers' => $request->getHeaders(),
+                'body' => $body
+            ]
         ];
+
+        $apiKey = getenv('GITHUB_API_KEY');
+        if(!empty($apiKey)){
+            $statusData = [
+                'state' => 'pending',
+                'target_url' => 'https://google.com',
+                'description' => 'Performance run is queued',
+                'context' => 'weasel/performance'
+            ];
+            $client = new \GuzzleHttp\Client();
+            $res = $client->request('POST', $body['pull_request']['statuses_url'], [
+                'headers' => ['Authorization', 'token ' . $apiKey],
+                'body' => json_encode($statusData),
+            ]);
+            if($res->getStatusCode() === 201) {
+                $statusBody = json_decode($res->getBody()->getContents());
+                $data['status_url'] = $statusBody['url'];
+            } else {
+                // TODO queue the status update to re-deliver
+            }
+        }
 
         $uuids = $couch->getUuids(1);
         $couch->putDocument($data, $uuids[0]);
