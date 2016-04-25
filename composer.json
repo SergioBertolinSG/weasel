@@ -19,7 +19,8 @@
         "doctrine/couchdb": "@dev",
         "slim/slim": "^3.1",
         "monolog/monolog": "^1.13",
-        "raven/raven": "^0.13.0"
+        "raven/raven": "^0.13.0",
+        "guzzlehttp/guzzle": "^6.2"
     },
     "require-dev": {
         "behat/behat": "3.0",
