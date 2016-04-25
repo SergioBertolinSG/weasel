@@ -17,6 +17,7 @@ $container['logger'] = function (ContainerInterface $c) {
     $logger = new Logger($settings['logger']['name']);
     $logger->pushProcessor(new UidProcessor());
     $logger->pushHandler(new StreamHandler($settings['logger']['path'], Logger::DEBUG));
+    $logger->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
 
     $sentryDSN = $settings->get('sentry');
     if(!empty($sentryDSN)) {
