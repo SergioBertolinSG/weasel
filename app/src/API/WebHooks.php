@@ -4,6 +4,7 @@ namespace App\API;
 use App\DesignDocuments\MeasurementDesignDocument;
 use App\Middleware\Token;
 use Doctrine\CouchDB\CouchDBClient;
+use GuzzleHttp\Exception\ClientException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Log\LoggerInterface;
@@ -87,15 +88,21 @@ class WebHooks
                 'context' => 'weasel/performance'
             ];
             $client = new \GuzzleHttp\Client();
-            $res = $client->request('POST', $body['pull_request']['statuses_url'], [
-                'headers' => ['Authorization', 'token ' . $apiKey],
-                'body' => json_encode($statusData),
-            ]);
-            if($res->getStatusCode() === 201) {
-                $statusBody = json_decode($res->getBody()->getContents());
-                $data['status_url'] = $statusBody['url'];
-            } else {
+            try {
+                $res = $client->request('POST', $body['pull_request']['statuses_url'], [
+                    'headers' => ['Authorization' => 'token ' . $apiKey],
+                    'body' => json_encode($statusData),
+                ]);
+                if($res->getStatusCode() === 201) {
+                    $statusBody = json_decode($res->getBody()->getContents());
+                    $data['status_url'] = $statusBody['url'];
+                } else {
+                    // TODO queue the status update to re-deliver
+                    $this->logger->info('delivering status: return code different from 201 returned');
+                }
+            } catch (ClientException $e) {
                 // TODO queue the status update to re-deliver
+                $this->logger->info($e->getMessage());
             }
         }
 
