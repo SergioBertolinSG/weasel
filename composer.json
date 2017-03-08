@@ -23,7 +23,7 @@
         "guzzlehttp/guzzle": "^6.2"
     },
     "require-dev": {
-        "behat/behat": "3.0",
+        "behat/behat": "3.2",
         "rezzza/json-api-behat-extension": "^3.1"
     }
 }
